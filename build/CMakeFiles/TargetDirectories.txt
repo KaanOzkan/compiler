@@ -1,3 +1,0 @@
-/Users/kaanozkan/code/compiler/build/CMakeFiles/rebuild_cache.dir
-/Users/kaanozkan/code/compiler/build/CMakeFiles/edit_cache.dir
-/Users/kaanozkan/code/compiler/build/CMakeFiles/compiler.dir
