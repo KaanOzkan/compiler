@@ -1,6 +1,23 @@
-all:
-	+$(MAKE) -C src
-	./run.out
+
+CC = g++
+
+EXEC ?= run.out
+SRC_DIRS ?= ./src
+
+SRCS := $(shell find $(SRC_DIRS) -name *.cpp)
+OBJECTS := $(addsuffix .o,$(basename $(SRCS)))
+DEPS := $(OBJECTS:.o=.d)
+
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -g -Wall
+
+$(EXEC): $(OBJECTS)
+	$(CC) $(LDFLAGS) $(OBJECTS) -o $@ $(LOADLIBES) $(LDLIBS)
+
+.PHONY: clean
 clean:
-	+${MAKE} -C src clean
-	rm -f run.out
+	$(RM) $(EXEC) $(OBJECTS) $(DEPS)
+
+-include $(DEPS)
