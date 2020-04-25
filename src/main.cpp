@@ -1,10 +1,13 @@
 #include "lexer.hpp"
+#include <fstream>
 #include <iostream>
+#include <sstream>
+/* #include <vector> */
 
 #ifdef DEBUG_BUILD
-#define dprint(x) std::cerr << x << std::endl;
+#define debug_print(x) std::cerr << x << std::endl;
 #else
-#define dprint(x)                                                              \
+#define debug_print(x)                                                         \
     do {                                                                       \
     } while (0)
 #endif
@@ -15,11 +18,22 @@ int usage(const char *arg) {
     return EXIT_FAILURE;
 }
 
-void print_tokens(std::vector<std::string> tokens) {
+void print_tokens(std::vector<Token> tokens) {
     std::cout << "Tokens: " << std::endl;
     for (int i = 0; i < tokens.size(); i++) {
-        std::cout << tokens.at(i) << std::endl;
+        std::cout << tokens.at(i).lexeme << std::endl;
     }
+    std::cout << std::endl;
+}
+
+std::vector<char> read_file(std::string filename) {
+    std::ifstream file(filename);
+    std::ostringstream ss;
+    ss << file.rdbuf();
+    const std::string &file_contents = ss.str();
+    std::vector<char> file_chars(file_contents.begin(), file_contents.end());
+
+    return file_chars;
 }
 
 int main(int argc, char const *argv[]) {
@@ -27,12 +41,13 @@ int main(int argc, char const *argv[]) {
         return usage(argv[0]);
     }
 
-    std::string input_filename = argv[1];
-    dprint("Sending file to lexer");
-    // TODO: Token type instead of string
-    std::vector<std::string> tokens;
-    tokens = lex(input_filename, tokens);
-    print_tokens(tokens); // debug
+    debug_print("Reading file");
+    std::vector<char> file_chars = read_file(argv[1]);
+
+    debug_print("Sending file to lexer");
+    std::vector<Token> tokens;
+    tokens = lex(file_chars, tokens);
+    print_tokens(tokens);
 
     return EXIT_SUCCESS;
 }
