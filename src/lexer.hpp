@@ -15,7 +15,10 @@ enum TokenType {
     PLUS,
     SEMICOLON,
     STAR,
+    SLASH,
+    BANG,
     EQUAL,
+    BANG_EQUAL,
     IDENTIFIER,
     STRING_LITERAL,
     NUMBER,
@@ -34,12 +37,15 @@ struct Lexer {
     int line;
     int current;
     int start;
+    int column;
     Token* current_token;
     std::vector<char> input;
     std::vector<Token> tokens;
 };
 
-void add_token(Lexer* l, TokenType type);
+void add_token(Lexer* l, const TokenType type);
 void consume(Lexer* l);
+void advance(Lexer *l);
+char peek(const Lexer l);
 std::vector<Token> lex(std::vector<char> input, std::vector<Token> &lexemes);
-void lexer_error(int line);
+void lexer_error(int line, int column);

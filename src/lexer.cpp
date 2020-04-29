@@ -2,7 +2,7 @@
 #include "iostream"
 
 // Add a token to tokens vector. Text is determined by start/current indices
-void add_token(Lexer* l, TokenType type) {
+void add_token(Lexer* l, const TokenType type) {
     std::string text;
     for(int i = l->start; i < l->current+1; i++) {
         text += l->input.at(i);
@@ -16,12 +16,23 @@ void add_token(Lexer* l, TokenType type) {
     l->tokens.push_back(token);
 }
 
-// Consumes token and cleanup
+// Finalize token information before advancing
+// TODO: Delete if end_pos is unused
 void consume(Lexer* l) {
     Token token = l->tokens.back();
     token.end_pos = l->current;
-    l->current = 0;
-    l->start = 0;
+}
+
+void advance(Lexer *l) {
+    l->current++;
+    l->column++;
+}
+
+char peek(const Lexer l) {
+    if(l.current+1 > l.input.size()) {
+        return 0;
+    }
+    return l.input.at(l.current+1);
 }
 
 std::vector<Token> lex(const std::vector<char> input,
@@ -32,8 +43,9 @@ std::vector<Token> lex(const std::vector<char> input,
     l.input = input;
     l.tokens = tokens;
     l.line = 1;    // line number
-    l.start = 0;   // index of first character in CURRENT lexeme
-    l.current = 0; // index of character currently being looked at
+    l.column = 1;  // column number
+    l.start = 0;   // index of first character in token (relative to input)
+    l.current = 0; // index of character currently being looked at (relative to input)
     while (l.current < input.size()) {
         l.start = l.current;
         char token = input.at(l.current);
@@ -79,24 +91,43 @@ std::vector<Token> lex(const std::vector<char> input,
                 add_token(&l, STAR);
                 consume(&l);
                 break;
-
             case ' ':
             case '\r':
             case '\t':
                 break;
             case '\n':
                 l.line++;
+                l.column = 0;
+                break;
+            case '!':
+                if(peek(l) == '=') {
+                    advance(&l);
+                    add_token(&l, BANG_EQUAL);
+                } else {
+                    add_token(&l, BANG);
+                    consume(&l);
+                }
+                break;
+            case '/':
+                if(peek(l) == '/') {
+                    while(peek(l) && peek(l) != '\n') {
+                        advance(&l);
+                    }
+                } else {
+                    add_token(&l, SLASH);
+                    consume(&l);
+                }
                 break;
             default:
                 encountered_error = true;
-                lexer_error(l.line);
+                lexer_error(l.line, l.column);
         }
+        advance(&l);
     }
 
     return l.tokens;
 }
 
-// TODO: More specific error reporting
-void lexer_error(int line) {
-    std::cout << "Error: unexpected token at line " << line << std::endl;
+void lexer_error(int line, int column) {
+    std::cout << "Error: unexpected token at " << line << ":" << column << std::endl;
 }

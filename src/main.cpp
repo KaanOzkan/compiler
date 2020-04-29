@@ -21,7 +21,7 @@ int usage(const char *arg) {
 void print_tokens(std::vector<Token> tokens) {
     std::cout << "Tokens: " << std::endl;
     for (int i = 0; i < tokens.size(); i++) {
-        std::cout << tokens.at(i).lexeme << std::endl;
+        std::cout << tokens.at(i).text << std::endl;
     }
     std::cout << std::endl;
 }
