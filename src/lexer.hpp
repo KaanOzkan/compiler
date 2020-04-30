@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 
-// TODO: Extend
 enum TokenType {
     LEFT_PAREN,
     RIGHT_PAREN,
@@ -19,10 +18,40 @@ enum TokenType {
     BANG,
     EQUAL,
     BANG_EQUAL,
-    IDENTIFIER,
-    STRING_LITERAL,
+    STRING,
     NUMBER,
-    KEYWORD
+    IDENTIFIER,
+    AUTO,
+    BREAK,
+    CHAR,
+    CONST,
+    CONTINUE,
+    DEFAULT,
+    DO,
+    DOUBLE,
+    ELSE,
+    ENUM,
+    EXTERN,
+    FLOAT,
+    FOR,
+    GOTO,
+    IF,
+    INT,
+    LONG,
+    REGISTER,
+    RETURN,
+    SHORT,
+    SIGNED,
+    SIZEOF,
+    STATIC,
+    STRUCT,
+    SWITCH,
+    TYPEDEF,
+    UNION,
+    UNSIGNED,
+    VOID,
+    VOLATILE,
+    WHILE,
 };
 
 struct Token {
@@ -46,6 +75,9 @@ struct Lexer {
 void add_token(Lexer* l, const TokenType type);
 void consume(Lexer* l);
 void advance(Lexer *l);
-char peek(const Lexer l);
+char peek(const Lexer l, const int offset = 1);
+void lex_string(Lexer *l);
+bool is_digit(const char c);
+void lex_number(Lexer *l);
 std::vector<Token> lex(std::vector<char> input, std::vector<Token> &lexemes);
 void lexer_error(int line, int column);

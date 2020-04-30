@@ -21,7 +21,8 @@ int usage(const char *arg) {
 void print_tokens(std::vector<Token> tokens) {
     std::cout << "Tokens: " << std::endl;
     for (int i = 0; i < tokens.size(); i++) {
-        std::cout << tokens.at(i).text << std::endl;
+        std::cout << tokens.at(i).text << " : " << tokens.at(i).type
+                  << std::endl;
     }
     std::cout << std::endl;
 }
@@ -46,7 +47,12 @@ int main(int argc, char const *argv[]) {
 
     debug_print("Sending file to lexer");
     std::vector<Token> tokens;
-    tokens = lex(file_chars, tokens);
+    try {
+        tokens = lex(file_chars, tokens);
+    } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
     print_tokens(tokens);
 
     return EXIT_SUCCESS;
