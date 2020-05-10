@@ -1,8 +1,9 @@
 #include "lexer.hpp"
+#include "parser.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
-/* #include <vector> */
+#include <vector>
 
 #ifdef DEBUG_BUILD
 #define debug_print(x) std::cerr << x << std::endl;
@@ -53,7 +54,9 @@ int main(int argc, char const *argv[]) {
         std::cout << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    print_tokens(tokens);
+
+    debug_print("Parse tokens");
+    parse(tokens);
 
     return EXIT_SUCCESS;
 }
