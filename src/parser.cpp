@@ -10,48 +10,38 @@ class Expression {
 
 class Binary : public Expression {
   public:
-    const Expression *left;
-    const Token oprt;
-    const Expression *right;
+    Expression *left;
+    Token oprt;
+    Expression *right;
 
     Binary(Expression *left, Token oprt, Expression *right)
-        : left(left), oprt(oprt), right(right) {
-        std::cout << "operator: " << oprt.text << std::endl; // TODO: remove
-    }
+        : left(left), oprt(oprt), right(right) {}
 
     std::string accept(Visitor *);
 };
 
-// TODO: Use token type from lexer.hpp ?
 enum LiteralType { LT_NUMBER, LT_STRING, LT_BOOLEAN, LT_NIL };
 
 class Literal : public Expression {
-    LiteralType type;
+  public:
     int number;
     std::string str;
     bool boolean;
-
-  public:
     LiteralType literal_type;
 
-    Literal(LiteralType literal_type) : literal_type(literal_type) {
-        // TODO
-        switch (literal_type) {
-        case LT_NUMBER:
-            break;
-        case LT_STRING:
-            break;
-        case LT_BOOLEAN:
-            break;
-        case LT_NIL:
-            break;
-        }
-    };
+    Literal(LiteralType literal_type, int number)
+        : number(number), literal_type(literal_type) {}
+
+    Literal(LiteralType literal_type, std::string str)
+        : str(str), literal_type(literal_type) {}
+
+    Literal(LiteralType literal_type, bool boolean)
+        : boolean(boolean), literal_type(literal_type) {}
 
     std::string accept(Visitor *);
 };
 
-class Visitor : public Expression {
+class Visitor {
   public:
     virtual ~Visitor(){};
     virtual std::string visit_binary_expr(Binary *) = 0;
@@ -60,30 +50,40 @@ class Visitor : public Expression {
 
 class AstPrinter : public Visitor {
   public:
-    std::string print(Expression expr) { return expr.accept(this); }
+    void print(Expression *expr) { std::cout << expr->accept(this) << std::endl; }
 
-    std::string parenthesize(std::string, const Expression *left,
-                             const Expression *right) {
-        // TODO: Take multiple arguments
-        // TODO: Pretty print
+    std::string parenthesize(std::string name,
+                             const std::vector<Expression *> exprs) {
+        // TODO: Test
+        std::string str("(");
+        str += name;
+        for (int i = 0; i < exprs.size(); i++) {
+            Expression *e = exprs.at(i);
+            str += " ";
+            str += e->accept(this);
+        }
+        str += ")";
 
-        return "--";
+        return str;
     }
 
     std::string visit_binary_expr(Binary *expr) {
-        return parenthesize(expr->oprt.text, expr->left, expr->right);
+        std::vector<Expression *> v(2);
+        v.at(0) = expr->left;
+        v.at(1) = expr->right;
+        return parenthesize(expr->oprt.text, v);
     }
     std::string visit_literal_expr(Literal *expr) {
-        if (expr->literal_type != LT_NIL) {
-            // TODO: equivalent
-            /* return std::string(expr->literal_type); */
-            return "visiting literal";
+        switch (expr->literal_type) {
+        case LT_NUMBER:
+            return std::to_string(expr->number);
+        case LT_STRING:
+            return expr->str;
+        case LT_BOOLEAN:
+            return expr->boolean ? "true" : "false";
+        case LT_NIL:
+            return "nil";
         }
-        return "nil";
-    }
-
-    std::string accept(Visitor *) {
-        throw std::runtime_error("Not implemented");
     }
 };
 
@@ -91,10 +91,12 @@ std::string Binary::accept(Visitor *v) { return v->visit_binary_expr(this); }
 std::string Literal::accept(Visitor *v) { return v->visit_literal_expr(this); }
 
 void parse(std::vector<Token> tokens) {
-    Literal l1(LT_NUMBER);
-    Literal l2(LT_NUMBER);
-    Binary b(&l1, tokens[0], &l2);
+    // TODO: Parser loop
+    Literal l1(LT_NUMBER, 1);
+    Literal l2(LT_NUMBER, 2);
+    Token t = {TokenType::STRING, "+", 0, 0, 0};
+    Binary b(&l1, t, &l2);
 
     AstPrinter printer;
-    // TODO: print
+    printer.print(&b);
 }
