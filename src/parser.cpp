@@ -20,6 +20,13 @@ class Binary : public Expression {
     std::string accept(Visitor *);
 };
 
+class Grouping : public Expression {
+  public:
+    Expression *inner_expr;
+    Grouping(Expression *inner_expr) : inner_expr(inner_expr) {}
+    std::string accept(Visitor *);
+};
+
 enum LiteralType { LT_NUMBER, LT_STRING, LT_BOOLEAN, LT_NIL };
 
 class Literal : public Expression {
@@ -41,20 +48,27 @@ class Literal : public Expression {
     std::string accept(Visitor *);
 };
 
+class Unary : public Expression {
+  public:
+    Token oprt;
+    Expression *right;
+    Unary(Token oprt, Expression *right) : oprt(oprt), right(right) {}
+
+    std::string accept(Visitor *);
+};
+
 class Visitor {
   public:
     virtual ~Visitor(){};
     virtual std::string visit_binary_expr(Binary *) = 0;
+    virtual std::string visit_grouping_expr(Grouping *) = 0;
     virtual std::string visit_literal_expr(Literal *) = 0;
+    virtual std::string visit_unary_expr(Unary *) = 0;
 };
 
 class AstPrinter : public Visitor {
-  public:
-    void print(Expression *expr) { std::cout << expr->accept(this) << std::endl; }
-
     std::string parenthesize(std::string name,
                              const std::vector<Expression *> exprs) {
-        // TODO: Test
         std::string str("(");
         str += name;
         for (int i = 0; i < exprs.size(); i++) {
@@ -67,11 +81,20 @@ class AstPrinter : public Visitor {
         return str;
     }
 
+  public:
+    void print(Expression *expr) {
+        std::cout << expr->accept(this) << std::endl;
+    }
     std::string visit_binary_expr(Binary *expr) {
         std::vector<Expression *> v(2);
         v.at(0) = expr->left;
         v.at(1) = expr->right;
         return parenthesize(expr->oprt.text, v);
+    }
+    std::string visit_grouping_expr(Grouping *expr) {
+        std::vector<Expression *> v(1);
+        v.at(0) = expr->inner_expr;
+        return parenthesize("group", v);
     }
     std::string visit_literal_expr(Literal *expr) {
         switch (expr->literal_type) {
@@ -85,17 +108,30 @@ class AstPrinter : public Visitor {
             return "nil";
         }
     }
+
+    std::string visit_unary_expr(Unary *expr) {
+        std::vector<Expression *> v(1);
+        v.at(0) = expr->right;
+        return parenthesize(expr->oprt.text, v);
+    }
 };
 
 std::string Binary::accept(Visitor *v) { return v->visit_binary_expr(this); }
+std::string Grouping::accept(Visitor *v) {
+    return v->visit_grouping_expr(this);
+}
 std::string Literal::accept(Visitor *v) { return v->visit_literal_expr(this); }
+std::string Unary::accept(Visitor *v) { return v->visit_unary_expr(this); }
 
 void parse(std::vector<Token> tokens) {
     // TODO: Parser loop
-    Literal l1(LT_NUMBER, 1);
-    Literal l2(LT_NUMBER, 2);
-    Token t = {TokenType::STRING, "+", 0, 0, 0};
-    Binary b(&l1, t, &l2);
+    Literal l1(LT_NUMBER, 123);
+    Token t1 = {TokenType::STRING, "-", 0, 0, 0};
+    Unary u(t1, &l1);
+    Token t2 = {TokenType::STAR, "*", 0, 0, 0};
+    Literal l2(LT_NUMBER, 45);
+    Grouping g(&l2);
+    Binary b(&u, t2, &g);
 
     AstPrinter printer;
     printer.print(&b);
