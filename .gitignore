@@ -1,4 +1,6 @@
-.idea/
+.*
+*.o
+*.d
 CMakeLists.txt
 cmake-build-debug/
 *.swp

@@ -24,17 +24,16 @@
 
 // TODO: Extend
 static std::unordered_map<std::string, TokenType> keywords = {
-    {"break", BREAK}, {"char", CHAR},     {"const", CONST},
-    {"do", DO},       {"double", DOUBLE}, {"else", ELSE},
-    {"float", FLOAT}, {"for", FOR},       {"if", IF},
-    {"int", INT},     {"long", LONG},     {"return", RETURN},
-    {"short", SHORT}, {"struct", STRUCT}, {"void", VOID},
-    {"while", WHILE}};
+    {"auto", AUTO},   {"true", TRUE},     {"false", FALSE}, {"break", BREAK},
+    {"char", CHAR},   {"const", CONST},   {"do", DO},       {"double", DOUBLE},
+    {"else", ELSE},   {"float", FLOAT},   {"for", FOR},     {"if", IF},
+    {"int", INT},     {"long", LONG},     {"NULL", _NULL},  {"return", RETURN},
+    {"short", SHORT}, {"struct", STRUCT}, {"void", VOID},   {"while", WHILE}};
 
 // Add a token to tokens vector. Text is determined by start/current indices
 void add_token(Lexer *l, const TokenType type) {
     std::string text;
-    for (int i = l->start; i < l->current + 1; i++) {
+    for (unsigned long i = l->start; i < l->current + 1; i++) {
         text += l->input.at(i);
     }
 
@@ -58,7 +57,7 @@ void advance(Lexer *l) {
     l->column++;
 }
 
-char peek(const Lexer l, const int offset) {
+char peek(const Lexer l, const unsigned long offset) {
     if (l.current + offset > l.input.size()) {
         return 0;
     }
@@ -81,7 +80,7 @@ void lex_string(Lexer *l) {
     advance(l);
     // custom add_token()
     std::string text;
-    for (int i = l->start + 1; i < l->current; i++) {
+    for (unsigned long i = l->start + 1; i < l->current; i++) {
         text += l->input.at(i);
     }
 
@@ -144,7 +143,7 @@ void lex_alphanumeric(Lexer *l) {
     }
 
     std::string text;
-    for (int i = l->start; i < l->current + 1; i++) {
+    for (unsigned long i = l->start; i < l->current + 1; i++) {
         text += l->input.at(i);
     }
 
@@ -234,8 +233,31 @@ std::vector<Token> lex(const std::vector<char> input,
             }
             break;
         case '=':
-            add_token(&l, EQUAL);
-            consume(&l);
+            if (peek(l) == '=') {
+                advance(&l);
+                add_token(&l, EQUAL_EQUAL);
+            } else {
+                add_token(&l, EQUAL);
+                consume(&l);
+            }
+            break;
+        case '>':
+            if (peek(l) == '=') {
+                advance(&l);
+                add_token(&l, GREATER_EQUAL);
+            } else {
+                add_token(&l, GREATER);
+                consume(&l);
+            }
+            break;
+        case '<':
+            if (peek(l) == '=') {
+                advance(&l);
+                add_token(&l, LESS_EQUAL);
+            } else {
+                add_token(&l, LESS);
+                consume(&l);
+            }
             break;
         case '/':
             if (peek(l) == '/') {

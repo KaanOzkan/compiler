@@ -1,17 +1,10 @@
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "util.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <vector>
-
-#ifdef DEBUG_BUILD
-#define debug_print(x) std::cerr << x << std::endl;
-#else
-#define debug_print(x)                                                         \
-    do {                                                                       \
-    } while (0)
-#endif
 
 int usage(const char *arg) {
     std::cerr << "Usage: " << arg << " code.ko" << std::endl;
@@ -21,7 +14,7 @@ int usage(const char *arg) {
 
 void print_tokens(std::vector<Token> tokens) {
     std::cout << "Tokens: " << std::endl;
-    for (int i = 0; i < tokens.size(); i++) {
+    for (unsigned long i = 0; i < tokens.size(); i++) {
         std::cout << tokens.at(i).text << " : " << tokens.at(i).type
                   << std::endl;
     }

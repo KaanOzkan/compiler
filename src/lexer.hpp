@@ -18,9 +18,16 @@ enum TokenType {
     BANG,
     EQUAL,
     BANG_EQUAL,
+    EQUAL_EQUAL,
+    GREATER,
+    GREATER_EQUAL,
+    LESS,
+    LESS_EQUAL,
     STRING,
     NUMBER,
     IDENTIFIER,
+    TRUE,
+    FALSE,
     AUTO,
     BREAK,
     CHAR,
@@ -38,6 +45,7 @@ enum TokenType {
     IF,
     INT,
     LONG,
+    _NULL,
     REGISTER,
     RETURN,
     SHORT,
@@ -64,7 +72,7 @@ struct Token {
 
 struct Lexer {
     int line;
-    int current;
+    unsigned long current;
     int start;
     int column;
     Token* current_token;
@@ -75,7 +83,7 @@ struct Lexer {
 void add_token(Lexer* l, const TokenType type);
 void consume(Lexer* l);
 void advance(Lexer *l);
-char peek(const Lexer l, const int offset = 1);
+char peek(const Lexer l, const unsigned long offset = 1);
 void lex_string(Lexer *l);
 bool is_digit(const char c);
 void lex_number(Lexer *l);
