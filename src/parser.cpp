@@ -2,10 +2,11 @@
 #include "iostream"
 #include "lexer.hpp"
 #include "util.hpp"
+#include <memory>
 
 class Expression {
   public:
-    /* virtual ~Expression(){}; */
+    virtual ~Expression(){};
     virtual std::string accept(class Visitor *) { return ""; };
 };
 
@@ -124,12 +125,13 @@ std::string Unary::accept(Visitor *v) { return v->visit_unary_expr(this); }
  * Parser Helper Methods
  */
 
-bool at_the_end(Parser *p) { return p->current < p->tokens.size(); }
+bool at_the_end(Parser *p) { return p->current == p->tokens.size(); }
 
 Token previous(Parser *p) { return p->tokens.at(p->current - 1); }
 
 void advance(Parser *p) {
     if (!at_the_end(p)) {
+        debug_print("Advancing");
         p->current++;
     }
 }
@@ -145,6 +147,7 @@ bool same_type_as_curr_token(Parser *p, TokenType type) {
 bool match(Parser *p, std::vector<TokenType> v) {
     for (unsigned long i = 0; i < v.size(); i++) {
         if (same_type_as_curr_token(p, v.at(i))) {
+            debug_print(p->tokens.at(p->current).type);
             advance(p);
             return true;
         }
@@ -167,6 +170,7 @@ void consume(Parser *p, TokenType type, std::string error_message) {
 
 // TODO: Handle pointer cleanup
 Expression *primary(Parser *p) {
+    debug_print("Primary()");
     std::vector<TokenType> types{FALSE};
     if (match(p, types)) {
         return new Literal(LT_BOOLEAN, false);
@@ -180,17 +184,16 @@ Expression *primary(Parser *p) {
         return new Literal(LT_NIL, true);
     }
 
-    types.at(0) = {NUMBER};
+    types.at(0) = NUMBER;
     if (match(p, types)) {
         return new Literal(LT_NUMBER, std::stoi(previous(p).text));
     }
-
-    types.at(0) = {STRING};
+    types.at(0) = STRING;
     if (match(p, types)) {
         return new Literal(LT_STRING, previous(p).text);
     }
 
-    types.at(0) = {LEFT_PAREN};
+    types.at(0) = LEFT_PAREN;
     if (match(p, types)) {
         consume(p, LEFT_PAREN, "Expected ')' after '('");
         return new Grouping(new Expression());
@@ -205,8 +208,7 @@ Expression *unary(Parser *p) {
     if (match(p, types)) {
         Token oprt = previous(p);
         Expression *right = unary(p);
-        Unary *ptr = new Unary(oprt, right); // TODO: Handle pointer cleanup
-        debug_print("Unary() - returning unary pointer");
+        Unary *ptr = new Unary(oprt, right);
         return ptr;
     }
 
@@ -222,8 +224,7 @@ Expression *multiplication(Parser *p) {
     while (match(p, types)) {
         Token oprt = previous(p);
         Expression *right = unary(p);
-        Binary b(left, oprt, right);
-        left = &b;
+        left = new Binary(left, oprt, right);
     }
 
     return left;
@@ -238,8 +239,7 @@ Expression *addition(Parser *p) {
     while (match(p, types)) {
         Token oprt = previous(p);
         Expression *right = multiplication(p);
-        Binary b(left, oprt, right);
-        left = &b;
+        left = new Binary(left, oprt, right);
     }
 
     return left;
@@ -254,8 +254,7 @@ Expression *comparison(Parser *p) {
     while (match(p, types)) {
         Token oprt = previous(p);
         Expression *right = addition(p);
-        Binary b(left, oprt, right);
-        left = &b;
+        left = new Binary(left, oprt, right);
     }
 
     return left;
@@ -269,10 +268,9 @@ Expression *equality(Parser *p) {
     while (match(p, types)) {
         Token oprt = previous(p);
         Expression *right = comparison(p);
-        Binary b(left, oprt, right);
-        left = &b; // TODO: Check no object slicing
+        left = new Binary(left, oprt, right);
     }
-
+    debug_print("equality() - finished equality");
     return left;
 }
 Expression *expression(Parser *p) { return equality(p); }
@@ -289,7 +287,9 @@ void parse(std::vector<Token> tokens) {
     Parser p;
     p.tokens = tokens;
     Expression *e = expression(&p);
-
+    debug_print("Parser complete");
     AstPrinter printer;
     printer.print(e);
+
+    delete (e);
 }
