@@ -1,6 +1,9 @@
 Development Notes
 -----------------
 
+Compile and run
+    - make CUSTOM=-DDEBUG_BUILD=1 && ./run.out test/parser_test.ko
+
 Formatting
     - using clang-format (https://clang.llvm.org/docs/ClangFormatStyleOptions.html)
     - 'clang-format -i src/*.cpp'
