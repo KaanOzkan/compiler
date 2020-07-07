@@ -6,5 +6,11 @@ struct Parser {
     unsigned long current = 0;
 };
 
+class Expression {
+  public:
+    virtual ~Expression(){};
+    virtual std::string accept(class Visitor *) { return ""; };
+};
+Expression *expression(Parser *p);
 void parse(std::vector<Token> tokens);
 

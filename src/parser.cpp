@@ -4,12 +4,6 @@
 #include "util.hpp"
 #include <memory>
 
-class Expression {
-  public:
-    virtual ~Expression(){};
-    virtual std::string accept(class Visitor *) { return ""; };
-};
-
 class Binary : public Expression {
   public:
     Expression *left;
@@ -147,7 +141,7 @@ bool same_type_as_curr_token(Parser *p, TokenType type) {
 bool match(Parser *p, std::vector<TokenType> v) {
     for (unsigned long i = 0; i < v.size(); i++) {
         if (same_type_as_curr_token(p, v.at(i))) {
-            debug_print(p->tokens.at(p->current).type);
+            /* debug_print(p->tokens.at(p->current).type); */
             advance(p);
             return true;
         }
@@ -169,16 +163,21 @@ void consume(Parser *p, TokenType type, std::string error_message) {
  */
 
 // TODO: Handle pointer cleanup
+// TODO: Hold on to parser error instead of throwing. Skip to next statement and
+// continue parsing (synchronization)
+
 Expression *primary(Parser *p) {
     debug_print("Primary()");
     std::vector<TokenType> types{FALSE};
     if (match(p, types)) {
         return new Literal(LT_BOOLEAN, false);
     }
+
     types.at(0) = TRUE;
     if (match(p, types)) {
         return new Literal(LT_BOOLEAN, true);
     }
+
     types.at(0) = _NULL;
     if (match(p, types)) {
         return new Literal(LT_NIL, true);
@@ -188,6 +187,7 @@ Expression *primary(Parser *p) {
     if (match(p, types)) {
         return new Literal(LT_NUMBER, std::stoi(previous(p).text));
     }
+
     types.at(0) = STRING;
     if (match(p, types)) {
         return new Literal(LT_STRING, previous(p).text);
@@ -195,8 +195,9 @@ Expression *primary(Parser *p) {
 
     types.at(0) = LEFT_PAREN;
     if (match(p, types)) {
-        consume(p, LEFT_PAREN, "Expected ')' after '('");
-        return new Grouping(new Expression());
+        Expression *expr = expression(p);
+        consume(p, RIGHT_PAREN, "Expected ')' after '('");
+        return new Grouping(expr);
     }
 
     throw std::runtime_error("Parser error - primary()");
@@ -273,6 +274,7 @@ Expression *equality(Parser *p) {
     debug_print("equality() - finished equality");
     return left;
 }
+
 Expression *expression(Parser *p) { return equality(p); }
 
 void parse(std::vector<Token> tokens) {
