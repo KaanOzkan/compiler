@@ -2,6 +2,8 @@
 #include "iostream"
 #include "lexer.hpp"
 #include "util.hpp"
+#include "visitor.hpp"
+#include "printers/ast_printer.hpp"
 #include <memory>
 
 class Binary : public Expression {
@@ -53,60 +55,6 @@ class Unary : public Expression {
     std::string accept(Visitor *);
 };
 
-class Visitor {
-  public:
-    virtual ~Visitor(){};
-    virtual std::string visit_binary_expr(Binary *) = 0;
-    virtual std::string visit_grouping_expr(Grouping *) = 0;
-    virtual std::string visit_literal_expr(Literal *) = 0;
-    virtual std::string visit_unary_expr(Unary *) = 0;
-};
-
-class AstPrinter : public Visitor {
-    std::string parenthesize(std::string name,
-                             const std::vector<Expression *> exprs) {
-        std::string str("(");
-        str += name;
-        for (unsigned long i = 0; i < exprs.size(); i++) {
-            Expression *e = exprs.at(i);
-            str += " ";
-            str += e->accept(this);
-        }
-        str += ")";
-
-        return str;
-    }
-
-  public:
-    void print(Expression *expr) {
-        std::cout << expr->accept(this) << std::endl;
-    }
-    std::string visit_binary_expr(Binary *expr) {
-        std::vector<Expression *> v{expr->left, expr->right};
-        return parenthesize(expr->oprt.text, v);
-    }
-    std::string visit_grouping_expr(Grouping *expr) {
-        std::vector<Expression *> v{expr->inner_expr};
-        return parenthesize("group", v);
-    }
-    std::string visit_literal_expr(Literal *expr) {
-        switch (expr->literal_type) {
-        case LT_NUMBER:
-            return std::to_string(expr->number);
-        case LT_STRING:
-            return expr->str;
-        case LT_BOOLEAN:
-            return expr->boolean ? "true" : "false";
-        case LT_NIL:
-            return "nil";
-        }
-    }
-
-    std::string visit_unary_expr(Unary *expr) {
-        std::vector<Expression *> v{expr->right};
-        return parenthesize(expr->oprt.text, v);
-    }
-};
 
 std::string Binary::accept(Visitor *v) { return v->visit_binary_expr(this); }
 std::string Grouping::accept(Visitor *v) {
@@ -163,7 +111,7 @@ void consume(Parser *p, TokenType type, std::string error_message) {
  */
 
 // TODO: Handle pointer cleanup
-// TODO: Hold on to parser error instead of throwing. Skip to next statement and
+// TODO: Hold onto parser error instead of throwing. Skip to next statement and
 // continue parsing (synchronization)
 
 Expression *primary(Parser *p) {
@@ -200,7 +148,7 @@ Expression *primary(Parser *p) {
         return new Grouping(expr);
     }
 
-    throw std::runtime_error("Parser error - primary()");
+    throw std::runtime_error("Parser error unhandled type in Expression.primary()");
 }
 
 Expression *unary(Parser *p) {
