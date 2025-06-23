@@ -22,12 +22,12 @@ void AstPrinter::print(Expression *expr) {
 }
 
 std::string AstPrinter::visit_binary_expr(Binary *expr) {
-    std::vector<Expression *> v{expr->left, expr->right};
+    std::vector<Expression *> v{expr->left.get(), expr->right.get()};
     return parenthesize(expr->oprt.text, v);
 }
 
 std::string AstPrinter::visit_grouping_expr(Grouping *expr) {
-    std::vector<Expression *> v{expr->inner_expr};
+    std::vector<Expression *> v{expr->inner_expr.get()};
     return parenthesize("group", v);
 }
 
@@ -45,6 +45,6 @@ std::string AstPrinter::visit_literal_expr(Literal *expr) {
 }
 
 std::string AstPrinter::visit_unary_expr(Unary *expr) {
-    std::vector<Expression *> v{expr->right};
+    std::vector<Expression *> v{expr->right.get()};
     return parenthesize(expr->oprt.text, v);
 }

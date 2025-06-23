@@ -50,12 +50,10 @@ int main(int argc, char const *argv[]) {
     }
 
     debug_print("Parse tokens");
-    Expression* ast = parse(tokens);
+    auto ast = parse(tokens);
 
     debug_print("Print AST");
     AstPrinter printer;
-    printer.print(ast);
-
-    delete ast;
+    printer.print(ast.get());
     return EXIT_SUCCESS;
 }
