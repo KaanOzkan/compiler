@@ -16,8 +16,15 @@ CPPFLAGS = $(CUSTOM) $(INC_FLAGS) -MMD -MP -g -Wall -Wextra -Werror -std=c++11
 $(EXEC): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@ $(LOADLIBES) $(LDLIBS)
 
-.PHONY: clean
+.PHONY: clean test
 clean:
 	$(RM) $(EXEC) $(OBJECTS) $(DEPS)
+
+test: $(EXEC)
+	./test_runner.sh $(filter-out $@,$(MAKECMDGOALS))
+
+# Prevent make from trying to build the arguments as targets
+%:
+	@:
 
 -include $(DEPS)
