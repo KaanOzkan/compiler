@@ -225,21 +225,11 @@ Expression *equality(Parser *p) {
 
 Expression *expression(Parser *p) { return equality(p); }
 
-void parse(std::vector<Token> tokens) {
-    /* Literal l1(LT_NUMBER, 123); */
-    /* Token t1 = {TokenType::STRING, "-", 0, 0, 0}; */
-    /* Unary u(t1, &l1); */
-    /* Token t2 = {TokenType::STAR, "*", 0, 0, 0}; */
-    /* Literal l2(LT_NUMBER, 45); */
-    /* Grouping g(&l2); */
-    /* Binary b(&u, t2, &g); */
-
+Expression* parse(std::vector<Token> tokens) {
     Parser p;
     p.tokens = tokens;
     Expression *e = expression(&p);
     debug_print("Parser complete");
-    AstPrinter printer;
-    printer.print(e);
 
-    delete (e);
+    return e;
 }

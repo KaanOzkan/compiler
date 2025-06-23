@@ -12,5 +12,5 @@ class Expression {
     virtual std::string accept(class Visitor *) { return ""; };
 };
 Expression *expression(Parser *p);
-void parse(std::vector<Token> tokens);
+Expression* parse(std::vector<Token> tokens);
 

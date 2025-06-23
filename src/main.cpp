@@ -1,6 +1,7 @@
 #include "lexer.hpp"
 #include "parser.hpp"
 #include "util.hpp"
+#include "printers/ast_printer.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -49,7 +50,12 @@ int main(int argc, char const *argv[]) {
     }
 
     debug_print("Parse tokens");
-    parse(tokens);
+    Expression* ast = parse(tokens);
 
+    debug_print("Print AST");
+    AstPrinter printer;
+    printer.print(ast);
+
+    delete ast;
     return EXIT_SUCCESS;
 }
