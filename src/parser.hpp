@@ -2,15 +2,19 @@
 #include "lexer.hpp"
 #include <memory>
 
-struct Parser {
-    std::vector<Token> tokens;
-    unsigned long current = 0;
-};
-
 class Expression {
   public:
     virtual ~Expression(){};
     virtual std::string accept(class Visitor *) { return ""; };
+};
+
+class Parser {
+  public:
+    std::vector<Token> tokens;
+    unsigned long current = 0;
+
+    std::unique_ptr<Expression> expression();
+    std::unique_ptr<Expression> parse(std::vector<Token> tokens);
 };
 
 class Binary : public Expression {
@@ -62,7 +66,3 @@ class Unary : public Expression {
 
     std::string accept(class Visitor *);
 };
-
-std::unique_ptr<Expression> expression(Parser *p);
-std::unique_ptr<Expression> parse(std::vector<Token> tokens);
-

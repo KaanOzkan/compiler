@@ -94,7 +94,7 @@ std::unique_ptr<Expression> primary(Parser *p) {
 
     types.at(0) = LEFT_PAREN;
     if (match(p, types)) {
-        auto expr = expression(p);
+        auto expr = p->expression();
         consume(p, RIGHT_PAREN, "Expected ')' after '('");
         return std::unique_ptr<Grouping>(new Grouping(std::move(expr)));
     }
@@ -173,12 +173,12 @@ std::unique_ptr<Expression> equality(Parser *p) {
     return left;
 }
 
-std::unique_ptr<Expression> expression(Parser *p) { return equality(p); }
+std::unique_ptr<Expression> Parser::expression() { return equality(this); }
 
-std::unique_ptr<Expression> parse(std::vector<Token> tokens) {
-    Parser p;
-    p.tokens = tokens;
-    auto e = expression(&p);
+std::unique_ptr<Expression> Parser::parse(std::vector<Token> tokens) {
+    this->tokens = tokens;
+    this->current = 0;
+    auto e = expression();
     debug_print("Parser complete");
 
     return e;

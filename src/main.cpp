@@ -6,9 +6,12 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <string>
 
 int usage(const char *arg) {
-    std::cerr << "Usage: " << arg << " code.ko" << std::endl;
+    std::cerr << "Usage: " << arg << " code.ko [--print=parser]" << std::endl;
+    std::cerr << "Options:" << std::endl;
+    std::cerr << "  --print=parser    Print AST after parser phase" << std::endl;
 
     return EXIT_FAILURE;
 }
@@ -33,12 +36,26 @@ std::vector<char> read_file(std::string filename) {
 }
 
 int main(int argc, char const *argv[]) {
-    if (argc != 2) {
+    if (argc < 2 || argc > 3) {
         return usage(argv[0]);
     }
 
+    std::string filename = argv[1];
+    bool print_parser = false;
+
+    // Check for --print=parser flag
+    if (argc == 3) {
+        std::string flag = argv[2];
+        if (flag == "--print=parser") {
+            print_parser = true;
+        } else {
+            std::cerr << "Unknown flag: " << flag << std::endl;
+            return usage(argv[0]);
+        }
+    }
+
     debug_print("Reading file");
-    std::vector<char> file_chars = read_file(argv[1]);
+    std::vector<char> file_chars = read_file(filename);
 
     debug_print("Sending file to lexer");
     std::vector<Token> tokens;
@@ -50,10 +67,14 @@ int main(int argc, char const *argv[]) {
     }
 
     debug_print("Parse tokens");
-    auto ast = parse(tokens);
+    Parser parser;
+    auto ast = parser.parse(tokens);
 
-    debug_print("Print AST");
-    AstPrinter printer;
-    printer.print(ast.get());
+    if (print_parser) {
+        debug_print("Print AST");
+        AstPrinter printer;
+        printer.print(ast.get());
+    }
+
     return EXIT_SUCCESS;
 }

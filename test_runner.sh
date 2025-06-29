@@ -48,7 +48,14 @@ for test_dir in $test_dirs; do
         TOTAL_ATTEMPTED=$((TOTAL_ATTEMPTED + 1))
         
         # Run parser and capture output
-        if actual_output=$(./run.out "$test_file" 2>&1); then
+        # Add --print=parser flag for parser tests
+        if [[ "$test_dir" == *"parser"* ]]; then
+            run_cmd="./run.out \"$test_file\" --print=parser"
+        else
+            run_cmd="./run.out \"$test_file\""
+        fi
+
+        if actual_output=$(eval $run_cmd 2>&1); then
             expected_output=$(cat "$expected_file" | tr -d '\n')
             actual_output=$(echo "$actual_output" | tr -d '\n')
             
