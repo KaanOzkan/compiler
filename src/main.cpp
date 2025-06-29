@@ -1,19 +1,23 @@
+#include "codegen.hpp"
 #include "lexer.hpp"
 #include "parser.hpp"
-#include "util.hpp"
 #include "printers/ast_printer.hpp"
-#include "codegen.hpp"
+#include "util.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <vector>
 #include <string>
+#include <vector>
 
 int usage(const char *arg) {
-    std::cerr << "Usage: " << arg << " code.ko [--print=parser] [--no-assembly]" << std::endl;
+    std::cerr << "Usage: " << arg << " code.ko [--print=parser] [--no-assembly]"
+              << std::endl;
     std::cerr << "Options:" << std::endl;
-    std::cerr << "  --print=parser     Print AST after parser phase" << std::endl;
-    std::cerr << "  --no-assembly      Disable ARM assembly generation (enabled by default)" << std::endl;
+    std::cerr << "  --print=parser     Print AST after parser phase"
+              << std::endl;
+    std::cerr << "  --no-assembly      Disable ARM assembly generation "
+                 "(enabled by default)"
+              << std::endl;
 
     return EXIT_FAILURE;
 }

@@ -29,46 +29,46 @@ std::string CodeGenerator::visit_unary_expr(Unary *expr) {
     return "";
 }
 
-std::string CodeGenerator::generate(Expression* ast) {
+std::string CodeGenerator::generate(Expression *ast) {
     // TODO: Main generation entry point
     generate_prologue();
-    
+
     // Visit the AST
     ast->accept(this);
-    
+
     generate_epilogue();
-    
+
     return get_assembly();
 }
 
-void CodeGenerator::emit(const std::string& instruction) {
+void CodeGenerator::emit(const std::string &instruction) {
     assembly_lines.push_back(instruction);
 }
 
-void CodeGenerator::emit_data(const std::string& data) {
+void CodeGenerator::emit_data(const std::string &data) {
     data_section.push_back(data);
 }
 
 std::string CodeGenerator::get_assembly() {
     std::stringstream output;
-    
+
     // Data section
     if (!data_section.empty()) {
         output << ".section .data\n";
-        for (const auto& line : data_section) {
+        for (const auto &line : data_section) {
             output << line << "\n";
         }
         output << "\n";
     }
-    
+
     // Text section
     output << ".section .text\n";
     output << ".global _start\n\n";
-    
-    for (const auto& line : assembly_lines) {
+
+    for (const auto &line : assembly_lines) {
         output << line << "\n";
     }
-    
+
     return output.str();
 }
 
@@ -82,4 +82,4 @@ void CodeGenerator::generate_epilogue() {
     emit("    mov r7, #1       @ exit syscall");
     emit("    mov r0, #0       @ exit status");
     emit("    svc #0           @ system call");
-} 
+}

@@ -1,13 +1,10 @@
 #include "parser.hpp"
 #include "iostream"
 #include "lexer.hpp"
+#include "printers/ast_printer.hpp"
 #include "util.hpp"
 #include "visitor.hpp"
-#include "printers/ast_printer.hpp"
 #include <memory>
-
-
-
 
 std::string Binary::accept(Visitor *v) { return v->visit_binary_expr(this); }
 std::string Grouping::accept(Visitor *v) {
@@ -84,12 +81,14 @@ std::unique_ptr<Expression> primary(Parser *p) {
 
     types.at(0) = NUMBER;
     if (match(p, types)) {
-        return std::unique_ptr<Literal>(new Literal(LT_NUMBER, std::stoi(previous(p).text)));
+        return std::unique_ptr<Literal>(
+            new Literal(LT_NUMBER, std::stoi(previous(p).text)));
     }
 
     types.at(0) = STRING;
     if (match(p, types)) {
-        return std::unique_ptr<Literal>(new Literal(LT_STRING, previous(p).text));
+        return std::unique_ptr<Literal>(
+            new Literal(LT_STRING, previous(p).text));
     }
 
     types.at(0) = LEFT_PAREN;
@@ -99,7 +98,8 @@ std::unique_ptr<Expression> primary(Parser *p) {
         return std::unique_ptr<Grouping>(new Grouping(std::move(expr)));
     }
 
-    throw std::runtime_error("Parser error unhandled type in Expression.primary()");
+    throw std::runtime_error(
+        "Parser error unhandled type in Expression.primary()");
 }
 
 std::unique_ptr<Expression> unary(Parser *p) {
@@ -123,7 +123,8 @@ std::unique_ptr<Expression> multiplication(Parser *p) {
     while (match(p, types)) {
         Token oprt = previous(p);
         auto right = unary(p);
-        left = std::unique_ptr<Binary>(new Binary(std::move(left), oprt, std::move(right)));
+        left = std::unique_ptr<Binary>(
+            new Binary(std::move(left), oprt, std::move(right)));
     }
 
     return left;
@@ -138,7 +139,8 @@ std::unique_ptr<Expression> addition(Parser *p) {
     while (match(p, types)) {
         Token oprt = previous(p);
         auto right = multiplication(p);
-        left = std::unique_ptr<Binary>(new Binary(std::move(left), oprt, std::move(right)));
+        left = std::unique_ptr<Binary>(
+            new Binary(std::move(left), oprt, std::move(right)));
     }
 
     return left;
@@ -153,7 +155,8 @@ std::unique_ptr<Expression> comparison(Parser *p) {
     while (match(p, types)) {
         Token oprt = previous(p);
         auto right = addition(p);
-        left = std::unique_ptr<Binary>(new Binary(std::move(left), oprt, std::move(right)));
+        left = std::unique_ptr<Binary>(
+            new Binary(std::move(left), oprt, std::move(right)));
     }
 
     return left;
@@ -167,7 +170,8 @@ std::unique_ptr<Expression> equality(Parser *p) {
     while (match(p, types)) {
         Token oprt = previous(p);
         auto right = comparison(p);
-        left = std::unique_ptr<Binary>(new Binary(std::move(left), oprt, std::move(right)));
+        left = std::unique_ptr<Binary>(
+            new Binary(std::move(left), oprt, std::move(right)));
     }
     debug_print("equality() - finished equality");
     return left;
