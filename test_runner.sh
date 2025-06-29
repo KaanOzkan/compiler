@@ -48,9 +48,8 @@ for test_dir in $test_dirs; do
         TOTAL_ATTEMPTED=$((TOTAL_ATTEMPTED + 1))
         
         # Run parser and capture output
-        # Add --print=parser flag for parser tests
         if [[ "$test_dir" == *"parser"* ]]; then
-            run_cmd="./run.out \"$test_file\" --print=parser"
+            run_cmd="./run.out \"$test_file\" --print=parser --no-assembly"
         else
             run_cmd="./run.out \"$test_file\""
         fi

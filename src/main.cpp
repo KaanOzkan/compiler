@@ -2,6 +2,7 @@
 #include "parser.hpp"
 #include "util.hpp"
 #include "printers/ast_printer.hpp"
+#include "codegen.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -9,9 +10,10 @@
 #include <string>
 
 int usage(const char *arg) {
-    std::cerr << "Usage: " << arg << " code.ko [--print=parser]" << std::endl;
+    std::cerr << "Usage: " << arg << " code.ko [--print=parser] [--no-assembly]" << std::endl;
     std::cerr << "Options:" << std::endl;
-    std::cerr << "  --print=parser    Print AST after parser phase" << std::endl;
+    std::cerr << "  --print=parser     Print AST after parser phase" << std::endl;
+    std::cerr << "  --no-assembly      Disable ARM assembly generation (enabled by default)" << std::endl;
 
     return EXIT_FAILURE;
 }
@@ -36,18 +38,21 @@ std::vector<char> read_file(std::string filename) {
 }
 
 int main(int argc, char const *argv[]) {
-    if (argc < 2 || argc > 3) {
+    if (argc < 2 || argc > 4) {
         return usage(argv[0]);
     }
 
     std::string filename = argv[1];
     bool print_parser = false;
+    bool output_assembly = true; // Default to true
 
-    // Check for --print=parser flag
-    if (argc == 3) {
-        std::string flag = argv[2];
+    // Check for flags
+    for (int i = 2; i < argc; i++) {
+        std::string flag = argv[i];
         if (flag == "--print=parser") {
             print_parser = true;
+        } else if (flag == "--no-assembly") {
+            output_assembly = false;
         } else {
             std::cerr << "Unknown flag: " << flag << std::endl;
             return usage(argv[0]);
@@ -74,6 +79,13 @@ int main(int argc, char const *argv[]) {
         debug_print("Print AST");
         AstPrinter printer;
         printer.print(ast.get());
+    }
+
+    if (output_assembly) {
+        debug_print("Generate assembly");
+        CodeGenerator codegen;
+        std::string assembly = codegen.generate(ast.get());
+        std::cout << assembly;
     }
 
     return EXIT_SUCCESS;
