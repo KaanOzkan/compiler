@@ -26,7 +26,7 @@ test: $(EXEC)
 
 run:
 	@$(MAKE) -s $(EXEC)
-	@./$(EXEC) $(filter-out $@,$(MAKECMDGOALS))
+	@./$(EXEC) $(filter-out $@,$(MAKECMDGOALS)) --print=parser
 
 exec: $(EXEC)
 	@./$(EXEC) $(filter-out $@,$(MAKECMDGOALS)) > output.s

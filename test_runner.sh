@@ -17,7 +17,13 @@ TOTAL_ATTEMPTED=0
 # Determine test directory based on argument
 if [ $# -eq 0 ]; then
     echo "Running all tests..."
-    test_dirs="test test/parser"
+    # Find all test directories (root test dir + all subdirectories)
+    test_dirs="test"
+    for dir in test/*/; do
+        if [ -d "$dir" ]; then
+            test_dirs="$test_dirs $(echo "$dir" | sed 's:/$::')"
+        fi
+    done
 else
     test_folder="$1"
     echo "Running $test_folder tests..."
@@ -37,7 +43,7 @@ for test_dir in $test_dirs; do
         test_name=$(basename "$test_file" .ko)
         expected_file="${test_file%.ko}.exp"
         
-        echo -n "Testing $test_name... "
+        echo -n "Testing $test_dir/$test_name... "
         
         if [ ! -f "$expected_file" ]; then
             echo -e "${YELLOW}SKIP${NC} (no .exp file)"

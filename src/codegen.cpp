@@ -6,8 +6,22 @@ CodeGenerator::CodeGenerator() {
 }
 
 std::string CodeGenerator::visit_binary_expr(Binary *expr) {
-    (void)expr; // Suppress unused parameter warning
-    // TODO: Generate ARM assembly for binary expressions
+    // Visit left operand
+    std::string left = expr->left->accept(this);
+
+    // Visit right operand
+    std::string right = expr->right->accept(this);
+
+    // Generate assembly for binary operation
+    if (expr->oprt.type == PLUS) {
+        emit("    // Binary addition: " + left + " + " + right);
+        emit("    mov x0, #" + left + "       // load left operand");
+        emit("    mov x1, #" + right + "       // load right operand");
+        emit("    add x0, x0, x1        // add x1 to x0");
+        return "x0"; // Result is in x0
+    }
+
+    // TODO: Handle other operators (-, *, /, etc.)
     return "";
 }
 
@@ -18,8 +32,17 @@ std::string CodeGenerator::visit_grouping_expr(Grouping *expr) {
 }
 
 std::string CodeGenerator::visit_literal_expr(Literal *expr) {
-    (void)expr; // Suppress unused parameter warning
-    // TODO: Generate ARM assembly for literal expressions
+    switch (expr->literal_type) {
+    case LT_NUMBER:
+        return std::to_string(expr->number);
+    case LT_STRING:
+        // TODO: Handle string literals
+        return expr->str;
+    case LT_BOOLEAN:
+        return expr->boolean ? "1" : "0";
+    case LT_NIL:
+        return "0";
+    }
     return "";
 }
 
