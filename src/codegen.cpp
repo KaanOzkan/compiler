@@ -62,8 +62,9 @@ std::string CodeGenerator::get_assembly() {
     }
 
     // Text section
-    output << ".section .text\n";
-    output << ".global _start\n\n";
+    output << ".section __TEXT,__text\n";
+    output << ".globl _main\n\n";
+    output << "_main:\n";
 
     for (const auto &line : assembly_lines) {
         output << line << "\n";
@@ -78,8 +79,8 @@ void CodeGenerator::generate_prologue() {
 
 void CodeGenerator::generate_epilogue() {
     // TODO: Generate ARM function epilogue and exit
-    emit("    @ Program exit");
-    emit("    mov r7, #1       @ exit syscall");
-    emit("    mov r0, #0       @ exit status");
-    emit("    svc #0           @ system call");
+    emit("    // Program exit");
+    emit("    mov x0, #0       // exit status");
+    emit("    mov x16, #1      // exit syscall");
+    emit("    svc #0x80        // system call");
 }

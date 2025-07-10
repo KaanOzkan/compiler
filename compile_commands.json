@@ -1,0 +1,97 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-I./src",
+      "-I./src/printers",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c++11",
+      "-c",
+      "-o",
+      "src/lexer.o",
+      "src/lexer.cpp"
+    ],
+    "directory": "/Users/kaanozkan/dev/compiler",
+    "file": "/Users/kaanozkan/dev/compiler/src/lexer.cpp",
+    "output": "/Users/kaanozkan/dev/compiler/src/lexer.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-I./src",
+      "-I./src/printers",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c++11",
+      "-c",
+      "-o",
+      "src/printers/ast_printer.o",
+      "src/printers/ast_printer.cpp"
+    ],
+    "directory": "/Users/kaanozkan/dev/compiler",
+    "file": "/Users/kaanozkan/dev/compiler/src/printers/ast_printer.cpp",
+    "output": "/Users/kaanozkan/dev/compiler/src/printers/ast_printer.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-I./src",
+      "-I./src/printers",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c++11",
+      "-c",
+      "-o",
+      "src/codegen.o",
+      "src/codegen.cpp"
+    ],
+    "directory": "/Users/kaanozkan/dev/compiler",
+    "file": "/Users/kaanozkan/dev/compiler/src/codegen.cpp",
+    "output": "/Users/kaanozkan/dev/compiler/src/codegen.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-I./src",
+      "-I./src/printers",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c++11",
+      "-c",
+      "-o",
+      "src/parser.o",
+      "src/parser.cpp"
+    ],
+    "directory": "/Users/kaanozkan/dev/compiler",
+    "file": "/Users/kaanozkan/dev/compiler/src/parser.cpp",
+    "output": "/Users/kaanozkan/dev/compiler/src/parser.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/c++",
+      "-I./src",
+      "-I./src/printers",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-std=c++11",
+      "-c",
+      "-o",
+      "src/main.o",
+      "src/main.cpp"
+    ],
+    "directory": "/Users/kaanozkan/dev/compiler",
+    "file": "/Users/kaanozkan/dev/compiler/src/main.cpp",
+    "output": "/Users/kaanozkan/dev/compiler/src/main.o"
+  }
+]
